@@ -1,0 +1,3 @@
+.build/
+*.cape
+.DS_Store
