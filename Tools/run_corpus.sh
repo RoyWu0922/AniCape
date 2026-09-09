@@ -35,7 +35,12 @@ while IFS= read -r d; do
     rc=$?
 
     if [ -f "$out" ]; then
-        n_cur=$(python3 -c "import plistlib,sys; print(len(plistlib.load(open(sys.argv[1],'rb')).get('Cursors',{})))" "$out")
+        if n_cur=$(python3 -c "import plistlib,sys; print(len(plistlib.load(open(sys.argv[1],'rb')).get('Cursors',{})))" "$out" 2>/dev/null); then
+            n_cur=${n_cur:-0}
+        else
+            echo "   ⚠️ 无法解析 $out（plist 读取失败），按 0 光标计"
+            n_cur=0
+        fi
     else
         n_cur=0
     fi

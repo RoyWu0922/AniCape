@@ -118,6 +118,8 @@ def parse_ani(path):
             if len(body) < 36:
                 raise ANIError("truncated")
             # anih 布局: cbSize(0) frames(4) steps(8) cx(16) cy(20) bitCount(24) planes(26) rate(28) flags(32)
+            # anih 的 cx/cy 偏移 16/20 逐字镜像 ANIReader.swift；真实语料这两字段写 0（死字段，
+            # 真实尺寸来自每个 icon 的 DIB），故无害且忠实。
             header = {
                 "declaredFrames": _u32(body, 4),
                 "defaultRateJiffies": _u32(body, 28),
