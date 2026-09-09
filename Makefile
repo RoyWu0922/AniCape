@@ -2,6 +2,6 @@
 build:
 	swift build -c release
 test:
-	swift test
+	swift run anicap-tests
 clean:
 	swift package clean
