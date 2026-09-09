@@ -29,3 +29,17 @@ public struct ParsedANI {
         self.seq = seq
     }
 }
+
+public enum ANIDocumentError: Error, Equatable {
+    case mismatchedFrameSize(Int), badSeq, tooManyFrames(Int)
+}
+
+public struct ANIDocument {
+    public let frames: [CURImage]
+    public let displayIndices: [Int]
+    public let frameDuration: Double
+    public var displayCount: Int { displayIndices.count }
+    public init(frames: [CURImage], displayIndices: [Int], frameDuration: Double) {
+        self.frames = frames; self.displayIndices = displayIndices; self.frameDuration = frameDuration
+    }
+}

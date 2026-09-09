@@ -8,6 +8,12 @@ let suites: [(name: String, run: () throws -> Void)] = [
     ("ANIReaderRejectsNonRIFF", testANIReaderRejectsNonRIFF),
     ("CURDecoder32bpp", testDecodes32bppRoundTrip),
     ("CURDecoderCorrupt", testRejectsCorrupt),
+    ("ANIDocDefaultDuration", testDefaultDurationAndIdentityOrder),
+    ("ANIDocRateWins", testRateChunkWins),
+    ("ANIDocSeqDuplicates", testSeqExpandsWithDuplicates),
+    ("ANIDocTooManyFrames", testTooManyFramesThrows),
+    ("ANIDocMismatchedSize", testMismatchedFrameSizeThrows),
+    ("ANIDocBadSeq", testBadSeqThrows),
 ]
 
 var ranAny = false
