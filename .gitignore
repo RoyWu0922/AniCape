@@ -1,3 +1,6 @@
 .build/
 *.cape
 .DS_Store
+指针/
+__pycache__/
+*.pyc
