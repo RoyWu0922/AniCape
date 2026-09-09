@@ -7,7 +7,8 @@ let package = Package(
     targets: [
         .target(name: "AniKit"),
         .target(name: "CapeKit"),
+        .target(name: "RoleKit"),
         .executableTarget(name: "anicap", dependencies: ["AniKit", "CapeKit"]),
-        .executableTarget(name: "anicap-tests", dependencies: ["AniKit", "CapeKit"]),
+        .executableTarget(name: "anicap-tests", dependencies: ["AniKit", "CapeKit", "RoleKit"]),
     ]
 )

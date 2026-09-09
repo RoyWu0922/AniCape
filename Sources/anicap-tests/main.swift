@@ -17,6 +17,11 @@ let suites: [(name: String, run: () throws -> Void)] = [
     ("CapeEnvelope", testEnvelopeProducesXMLPlistWithExpectedKeys),
     ("CapeWriterStrip", testStripIsFramesStackedTopToBottomAndTiffLZW),
     ("CapeWriterWrite", testWriteProducesReadableXMLFile),
+    ("RoleMapEnglish", testEnglishNames),
+    ("RoleMapChinese", testChineseNames),
+    ("RoleMapSkipped", testSkippedRolesReturnNil),
+    ("RoleMapUnknown", testUnknownReturnsNil),
+    ("RoleMapIdentifier", testExplicitIdentifierPassesThrough),
 ]
 
 var ranAny = false
