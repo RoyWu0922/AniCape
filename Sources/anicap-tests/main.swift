@@ -14,6 +14,7 @@ let suites: [(name: String, run: () throws -> Void)] = [
     ("ANIDocTooManyFrames", testTooManyFramesThrows),
     ("ANIDocMismatchedSize", testMismatchedFrameSizeThrows),
     ("ANIDocBadSeq", testBadSeqThrows),
+    ("CapeEnvelope", testEnvelopeProducesXMLPlistWithExpectedKeys),
 ]
 
 var ranAny = false
