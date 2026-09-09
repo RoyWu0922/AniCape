@@ -6,6 +6,8 @@ let suites: [(name: String, run: () throws -> Void)] = [
     ("LZWProbe", testLZWProbe),
     ("ANIReader", testANIReaderParsesHeaderRateAndSeq),
     ("ANIReaderRejectsNonRIFF", testANIReaderRejectsNonRIFF),
+    ("CURDecoder32bpp", testDecodes32bppRoundTrip),
+    ("CURDecoderCorrupt", testRejectsCorrupt),
 ]
 
 var ranAny = false
