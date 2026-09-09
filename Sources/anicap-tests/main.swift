@@ -4,6 +4,8 @@ let filter = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : nil
 
 let suites: [(name: String, run: () throws -> Void)] = [
     ("LZWProbe", testLZWProbe),
+    ("ANIReader", testANIReaderParsesHeaderRateAndSeq),
+    ("ANIReaderRejectsNonRIFF", testANIReaderRejectsNonRIFF),
 ]
 
 var ranAny = false
