@@ -2,12 +2,13 @@ import Foundation
 
 private struct RiffChunk { let id: String; let body: Data }
 
-private func chunks(in data: Data, start: Int) -> [RiffChunk] {
+private func chunks(in data: Data, start: Int) throws -> [RiffChunk] {
     var out: [RiffChunk] = []
     var off = start
     while off + 8 <= data.count {
         let id = String(decoding: data[off..<off + 4], as: UTF8.self)
         let len = data[off + 4..<off + 8].withUnsafeBytes { $0.loadUnaligned(as: UInt32.self) }.littleEndian
+        guard off + 8 + Int(len) <= data.count else { throw ANIError.truncated }
         // Data(a..<b) on this Foundation keeps the parent's absolute indices; re-base to 0
         // so downstream slicing (b[o..<o+4], chunk recursion) uses plain 0-based offsets.
         let body = Data(data[off + 8..<off + 8 + Int(len)])
@@ -26,7 +27,7 @@ public enum ANIReader {
         var frames: [Data] = []
         var rates: [Int]?
         var seq: [Int]?
-        for c in chunks(in: data, start: 12) {
+        for c in try chunks(in: data, start: 12) {
             switch c.id {
             case "anih":
                 let b = c.body
@@ -38,16 +39,18 @@ public enum ANIReader {
                 header = ANIHeader(declaredFrames: Int(rd(4)), defaultRateJiffies: Int(rd(28)),
                                    width: Int(rd(16)), height: Int(rd(20)))
             case "rate":
+                guard c.body.count % 4 == 0 else { throw ANIError.truncated }
                 rates = stride(from: 0, to: c.body.count, by: 4).map {
                     Int(c.body[$0..<$0 + 4].withUnsafeBytes { $0.loadUnaligned(as: UInt32.self) }.littleEndian)
                 }
             case "seq ":
+                guard c.body.count % 4 == 0 else { throw ANIError.truncated }
                 seq = stride(from: 0, to: c.body.count, by: 4).map {
                     Int(c.body[$0..<$0 + 4].withUnsafeBytes { $0.loadUnaligned(as: UInt32.self) }.littleEndian)
                 }
             case "LIST":
                 guard c.body.count >= 4, String(decoding: c.body[0..<4], as: UTF8.self) == "fram" else { continue }
-                for sub in chunks(in: c.body, start: 4) where sub.id == "icon" {
+                for sub in try chunks(in: c.body, start: 4) where sub.id == "icon" {
                     frames.append(sub.body)
                 }
             default:

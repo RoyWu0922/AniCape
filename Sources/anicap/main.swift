@@ -64,7 +64,6 @@ if CommandLine.arguments.count >= 2, CommandLine.arguments[1] == "file" {
         printUsage(); exit(2)
     }
     guard !files.isEmpty else { printUsage(); exit(2) }
-    var anyProduced = false
     var produced: [URL] = []
     var good: [String: CapeCursor] = [:]
     for path in files {
@@ -81,7 +80,6 @@ if CommandLine.arguments.count >= 2, CommandLine.arguments[1] == "file" {
         }
         do {
             let cur = try Converter.capeCursor(fromANI: url, identifier: identifier)
-            anyProduced = true
             if let outOpt, outOpt != "-", !isDirectory(outOpt) {
                 // 单文件：-o 指向文件
                 try CapeWriter.write(document: CapeDocument(name: base, author: "anicap",
@@ -100,11 +98,17 @@ if CommandLine.arguments.count >= 2, CommandLine.arguments[1] == "file" {
         let dir = URL(fileURLWithPath: outOpt)
         let name = dir.lastPathComponent
         let dest = dir.appendingPathComponent(name + ".cape")
-        try? CapeWriter.write(document: CapeDocument(name: name, author: "anicap",
-                                                     identifier: "local.anicap.\(Converter.slug(name))",
-                                                     cursors: good),
-                              to: dest)
-        if !good.isEmpty { produced.append(dest) }
+        if !good.isEmpty {
+            do {
+                try CapeWriter.write(document: CapeDocument(name: name, author: "anicap",
+                                                            identifier: "local.anicap.\(Converter.slug(name))",
+                                                            cursors: good),
+                                     to: dest)
+                produced.append(dest)
+            } catch {
+                print("❌ \(dest.path): \(error)")
+            }
+        }
     } else if !good.isEmpty {
         // 无 -o 或 -o=-：逐文件已在上面的单文件分支处理；此分支只在 outOpt 为 nil 时按原名逐个写出
         for path in files {
@@ -113,15 +117,19 @@ if CommandLine.arguments.count >= 2, CommandLine.arguments[1] == "file" {
             guard let identifier = RoleMap.identifier(forFileName: base) ?? roleArg.flatMap(RoleMap.identifier(forRoleName:)) else { continue }
             guard let cur = good[identifier] else { continue }
             let dest = url.deletingLastPathComponent().appendingPathComponent(base + ".cape")
-            try? CapeWriter.write(document: CapeDocument(name: base, author: "anicap",
-                                                         identifier: "local.anicap.\(Converter.slug(base))",
-                                                         cursors: [identifier: cur]),
-                                  to: dest)
-            produced.append(dest)
+            do {
+                try CapeWriter.write(document: CapeDocument(name: base, author: "anicap",
+                                                            identifier: "local.anicap.\(Converter.slug(base))",
+                                                            cursors: [identifier: cur]),
+                                     to: dest)
+                produced.append(dest)
+            } catch {
+                print("❌ \(dest.path): \(error)")
+            }
         }
     }
     for p in produced { print("✅ \(p.path)") }
-    exit(anyProduced ? 0 : 1)
+    exit(produced.isEmpty ? 1 : 0)
 }
 
 printUsage()

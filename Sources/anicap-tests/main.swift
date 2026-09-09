@@ -6,6 +6,8 @@ let suites: [(name: String, run: () throws -> Void)] = [
     ("LZWProbe", testLZWProbe),
     ("ANIReader", testANIReaderParsesHeaderRateAndSeq),
     ("ANIReaderRejectsNonRIFF", testANIReaderRejectsNonRIFF),
+    ("ANIReaderOversizedChunkLen", testChunkLengthOversizedThrowsTruncated),
+    ("ANIReaderBadRateBody", testRateBodyNotMultipleOf4ThrowsTruncated),
     ("CURDecoder32bpp", testDecodes32bppRoundTrip),
     ("CURDecoderCorrupt", testRejectsCorrupt),
     ("ANIDocDefaultDuration", testDefaultDurationAndIdentityOrder),
