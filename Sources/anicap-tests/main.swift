@@ -22,6 +22,9 @@ let suites: [(name: String, run: () throws -> Void)] = [
     ("RoleMapSkipped", testSkippedRolesReturnNil),
     ("RoleMapUnknown", testUnknownReturnsNil),
     ("RoleMapIdentifier", testExplicitIdentifierPassesThrough),
+    ("ConverterStacking", testCapeCursorStackingUsesDisplayIndices),
+    ("ConverterSlug", testSlugStripsNonAlphanumerics),
+    ("ConverterPack", testPackSkipsUnknownAndSubdirsAndWritesCape),
 ]
 
 var ranAny = false
