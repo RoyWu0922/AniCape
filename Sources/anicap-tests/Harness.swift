@@ -27,6 +27,7 @@ enum Harness {
         check(v == nil, "\(name) — want nil, got \(String(describing: v))", file: file, line: line)
     }
 
+    @discardableResult
     static func notNil<T>(_ v: T?, _ name: String, file: String = #fileID, line: Int = #line) -> T? {
         if v == nil { check(false, "\(name) — want non-nil", file: file, line: line) }
         return v
