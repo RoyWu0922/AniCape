@@ -117,4 +117,16 @@ bash Tools/run_corpus.sh /tmp/corpus_out
 - `roundtrip.py`：读 `.cape` 切片，与源 ani 显示帧逐像素比对，证明整条 Swift 流水线无损。
 - `run_corpus.sh`：遍历 `指针/**` 全量 pack 并汇总。
 
+## 关于「vibe coding」
+
+这个项目是 **vibe coding** 出来的：设计与实现由 [Claude Code](https://claude.com/claude-code) 协作完成，人负责提需求、做设计决策、验收结果。几乎没有哪一行是手敲的。
+
+这是个需要说清楚的前提，所以下面是它凭什么还站得住：
+
+- `make test` 覆盖 RIFF 解析、CUR/DIB 解码、LZW、cape 封装与转换计划，共 **127 项检查**，`0 failed` 才算过。
+- `Tools/` 下的校验工具是**独立于** Swift 实现另写的。`roundtrip.py` 把生成的 `.cape` 读回来，与源 `.ani` 逐像素比对——真正证明整条流水线无损的是它，不是单元测试。
+- 参考语料全量转换并 roundtrip 过；工具改名成 AniCape 时，命令行输出与改名前的二进制做过逐字节比对。
+
+请按对待任何未经审阅的代码那样对待它：用之前先读。
+
 语料目录 `指针/` 已被 `.gitignore` 排除，不会被提交。

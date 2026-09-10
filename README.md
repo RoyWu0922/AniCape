@@ -142,6 +142,18 @@ Sources/
 Tools/           Python/shell verification scripts
 ```
 
+## How this was built
+
+AniCape was **vibe coded** — designed and written in collaboration with [Claude Code](https://claude.com/claude-code), with a human setting the requirements, making the design calls and checking the results. Very little of it was typed out by hand.
+
+That is a real caveat, so here is what stands in for it:
+
+- `make test` runs a **127-check** suite over the RIFF parser, CUR/DIB decoding, LZW, the cape envelope and the conversion plan. `0 failed` is the gate.
+- `Tools/` holds checkers written *independently of* the Swift implementation. `roundtrip.py` re-reads a generated `.cape` and compares it pixel by pixel against the source `.ani` — that, not the unit tests, is what actually proves the pipeline is lossless.
+- The reference corpus was converted end to end and round-tripped, and the CLI's output was diffed byte-for-byte against a pre-rename build when the tool was renamed to AniCape.
+
+Treat it as you would any other unreviewed code: read it before you rely on it.
+
 ## Notes
 
 The reference corpus under `指针/` is excluded by `.gitignore` and is not part of this repository.
