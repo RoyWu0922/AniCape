@@ -13,8 +13,7 @@ struct ItemRowView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
-            Image(systemName: "photo").frame(width: 28, height: 28)
-                .foregroundStyle(.secondary)
+            thumbnail
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.fileName)
                 Text(detail).font(.caption).foregroundStyle(.secondary)
@@ -42,6 +41,18 @@ struct ItemRowView: View {
             }
         }
         .padding(.vertical, 3)
+    }
+
+    @ViewBuilder private var thumbnail: some View {
+        if let cursor = item.cursor, let image = CursorImages.firstImage(for: cursor) {
+            Image(decorative: image, scale: 1)
+                .interpolation(.none)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 28, height: 28)
+        } else {
+            Image(systemName: "photo").frame(width: 28, height: 28).foregroundStyle(.secondary)
+        }
     }
 
     private var detail: String {

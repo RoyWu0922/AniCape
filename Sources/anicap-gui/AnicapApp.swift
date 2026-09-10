@@ -28,16 +28,9 @@ struct AnicapApp: App {
                     HSplitView {
                         ItemListView(store: store, selection: $selection)
                             .frame(minWidth: 380)
-                        VStack {
-                            if let selected = store.items.first(where: { $0.sourceURL == selection }) {
-                                Text(selected.fileName).font(.headline)
-                                Text(selected.cursor == nil ? "无法预览" : "预览待接入（Task 6）")
-                                    .foregroundStyle(.secondary)
-                            } else {
-                                Text("选中一行").foregroundStyle(.secondary)
-                            }
-                        }
-                        .frame(minWidth: 260, maxWidth: .infinity, maxHeight: .infinity)
+                        // Ruling P3：selection 是 URL?，须按 sourceURL 解析成 ConversionItem。
+                        PreviewPaneView(item: store.items.first { $0.sourceURL == selection })
+                            .frame(minWidth: 260, maxWidth: .infinity, maxHeight: .infinity)
                     }
                 }
                 Divider()
