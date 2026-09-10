@@ -1,3 +1,13 @@
+/// GUI 里可指派的 macOS 光标槽位（中文规范名 + identifier）。
+public struct MacRole: Equatable {
+    public let name: String
+    public let identifier: String
+    public init(name: String, identifier: String) {
+        self.name = name
+        self.identifier = identifier
+    }
+}
+
 public enum RoleMap {
     // 别名（英文文件名/中文文件名）→ macOS identifier；nil 值 = 无 mac 槽，跳过。
     // 中英文系统名来自 spec §3。
@@ -29,5 +39,35 @@ public enum RoleMap {
     public static func identifier(forRoleName name: String) -> String? {
         if name.contains(".") { return name }       // 直接给了 identifier
         return identifier(forFileName: name)
+    }
+}
+
+extension RoleMap {
+    /// 13 个可指派槽位。**显式有序字面量**：私有 `table` 是 Dictionary（无序），
+    /// 不能拿来驱动 UI 列表顺序，故此处独立维护并加测试守卫。
+    public static let assignableRoles: [MacRole] = [
+        MacRole(name: "正常选择", identifier: "com.apple.coregraphics.Arrow"),
+        MacRole(name: "帮助选择", identifier: "com.apple.cursor.40"),
+        MacRole(name: "后台运行", identifier: "com.apple.cursor.4"),
+        MacRole(name: "忙", identifier: "com.apple.coregraphics.Wait"),
+        MacRole(name: "精确选择", identifier: "com.apple.cursor.7"),
+        MacRole(name: "文本选择", identifier: "com.apple.coregraphics.IBeam"),
+        MacRole(name: "垂直调整", identifier: "com.apple.cursor.32"),
+        MacRole(name: "水平调整", identifier: "com.apple.cursor.28"),
+        MacRole(name: "沿对角线调整1", identifier: "com.apple.cursor.34"),
+        MacRole(name: "沿对角线调整2", identifier: "com.apple.cursor.30"),
+        MacRole(name: "移动", identifier: "com.apple.coregraphics.Move"),
+        MacRole(name: "链接选择", identifier: "com.apple.cursor.2"),
+        MacRole(name: "不可用", identifier: "com.apple.cursor.3"),
+    ]
+
+    /// identifier → 中文规范名（GUI 显示用）；未知返回 nil。
+    public static func displayName(forIdentifier id: String) -> String? {
+        assignableRoles.first { $0.identifier == id }?.name
+    }
+
+    /// 该文件名是否为「无 mac 槽」角色。
+    public static func isSkipped(_ baseName: String) -> Bool {
+        skippedRoleNames.contains(baseName)
     }
 }

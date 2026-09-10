@@ -27,6 +27,10 @@ let suites: [(name: String, run: () throws -> Void)] = [
     ("ConverterStacking", testCapeCursorStackingUsesDisplayIndices),
     ("ConverterSlug", testSlugStripsNonAlphanumerics),
     ("ConverterPack", testPackSkipsUnknownAndSubdirsAndWritesCape),
+    ("RoleTableCoverage", testAssignableRolesCoverThirteenSlots),
+    ("RoleTableMatchesTable", testAssignableRolesMatchTableViaChineseNames),
+    ("RoleTableDisplayName", testDisplayNameRoundTrip),
+    ("RoleTableIsSkipped", testIsSkippedMatchesSkippedRoleNames),
 ]
 
 var ranAny = false
