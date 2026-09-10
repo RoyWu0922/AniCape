@@ -1,4 +1,4 @@
-# anicap
+# AniCape
 
 把 Windows 的 `.ani` 动画光标批量转换为 macOS [Mousecape](https://github.com/alexzielenski/Mousecape) 的 `.cape` 光标包。
 
@@ -9,13 +9,13 @@
 ## 构建
 
 ```bash
-make build          # swift build -c release → .build/release/anicap
+make build          # swift build -c release → .build/release/AniCape
 ```
 
 ## 测试
 
 ```bash
-make test           # 无 XCTest 门禁：swift run anicap-tests（命令行工具环境无 Xcode）
+make test           # 无 XCTest 门禁：swift run AniCapeTests（命令行工具环境无 Xcode）
 ```
 
 ## 用法
@@ -25,7 +25,7 @@ make test           # 无 XCTest 门禁：swift run anicap-tests（命令行工�
 把一个目录里所有 `.ani` 按文件名角色打包成一个 `.cape`：
 
 ```bash
-.build/release/anicap pack "指针/轰一/轰一" -o /tmp/hongyi.cape
+.build/release/AniCape pack "指针/轰一/轰一" -o /tmp/hongyi.cape
 # ✅ /tmp/hongyi.cape：13 个光标
 # 跳过：手写.ani，候选.ani，位置选择.ani，个人选择.ani
 ```
@@ -38,24 +38,24 @@ make test           # 无 XCTest 门禁：swift run anicap-tests（命令行工�
 
 ```bash
 # 单个文件，按文件名自动识别角色，输出到同目录
-.build/release/anicap file "指针/樱巫女/Normal.ani"
+.build/release/AniCape file "指针/樱巫女/Normal.ani"
 
 # 单个文件，指定输出文件
-.build/release/anicap file "指针/樱巫女/Normal.ani" -o /tmp/normal.cape
+.build/release/AniCape file "指针/樱巫女/Normal.ani" -o /tmp/normal.cape
 
 # 多个文件合并到一个输出目录（生成 <目录名>.cape）
-.build/release/anicap file "指针/樱巫女/Normal.ani" "指针/樱巫女/Busy.ani" -o /tmp/out
+.build/release/AniCape file "指针/樱巫女/Normal.ani" "指针/樱巫女/Busy.ani" -o /tmp/out
 
 # 用 --role 显式指定角色（角色别名或直接给 identifier）
-.build/release/anicap file 某文件.ani --role 正常选择 -o /tmp/x.cape
-.build/release/anicap file 某文件.ani --role com.apple.coregraphics.Arrow -o /tmp/x.cape
+.build/release/AniCape file 某文件.ani --role 正常选择 -o /tmp/x.cape
+.build/release/AniCape file 某文件.ani --role com.apple.coregraphics.Arrow -o /tmp/x.cape
 ```
 
 ## 图形界面（GUI）
 
 ```bash
 make gui       # 开发期直接运行
-make app       # 组装可双击的 build/anicap.app
+make app       # 组装可双击的 build/AniCape.app
 ```
 
 - 拖入 `.ani` 或整个文件夹 → 列表显示每个文件识别到的角色与帧数/尺寸。
@@ -63,7 +63,7 @@ make app       # 组装可双击的 build/anicap.app
 - 「无 mac 槽」或「未识别」的文件默认不纳入，可用行内下拉指派到 13 个 macOS 光标槽之一；两个文件指向同一槽位时高亮提示，转换时后者覆盖前者。
 - 底部可改名称/作者与输出路径，点「转换」写出 `.cape`；完成后可直接在 Finder 中显示或用 Mousecape 打开。
 - `.cape` 的 identifier 取 `local.anicap.<名称的 slug>`；若把名称留空则用 `cape`。
-  注意命令行 `anicap pack` 取的是**文件夹名**——名称字段未改动时两者相同。
+  注意命令行 `AniCape pack` 取的是**文件夹名**——名称字段未改动时两者相同。
 
 > 需要 macOS 13 或更高版本（`Package.swift` 的 platforms 已声明 `.v13`）。
 

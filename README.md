@@ -1,10 +1,10 @@
-# anicap
+# AniCape
 
 **Convert Windows `.ani` animated cursors into [Mousecape](https://github.com/alexzielenski/Mousecape) `.cape` cursor packs on macOS.**
 
 **English** · [中文说明](README.zh-CN.md)
 
-Windows cursor themes ship as `.ani` files — RIFF containers holding CUR/DIB frames — while macOS cursor themes live in Mousecape's `.cape` format: an XML plist of per-frame LZW-TIFF slices. Nothing bridged the two, so anicap does it: parse each `.ani`, decode every frame's pixels, hotspot and duration, infer the cursor's role from its filename, map it onto one of the 13 macOS cursor slots, and re-encode the result into a pack Mousecape accepts.
+Windows cursor themes ship as `.ani` files — RIFF containers holding CUR/DIB frames — while macOS cursor themes live in Mousecape's `.cape` format: an XML plist of per-frame LZW-TIFF slices. Nothing bridged the two, so AniCape does it: parse each `.ani`, decode every frame's pixels, hotspot and duration, infer the cursor's role from its filename, map it onto one of the 13 macOS cursor slots, and re-encode the result into a pack Mousecape accepts.
 
 Pure Swift via SwiftPM — no Xcode project, no third-party dependencies, borrowing only system AppKit for LZW-TIFF encoding. It ships as both a command-line tool and a native SwiftUI app.
 
@@ -17,13 +17,13 @@ Pure Swift via SwiftPM — no Xcode project, no third-party dependencies, borrow
 ## Build
 
 ```bash
-make build          # swift build -c release → .build/release/anicap
+make build          # swift build -c release → .build/release/AniCape
 ```
 
 ## Test
 
 ```bash
-make test           # swift run anicap-tests
+make test           # swift run AniCapeTests
 ```
 
 The suite deliberately avoids XCTest, because the Command Line Tools toolchain does not ship it. Instead it is a self-contained harness that prints a `---- N passed, M failed ----` summary and exits non-zero on failure.
@@ -35,7 +35,7 @@ The suite deliberately avoids XCTest, because the Command Line Tools toolchain d
 Converts every `.ani` in a directory into a single `.cape`, identifying each file's role from its name:
 
 ```bash
-.build/release/anicap pack "指针/轰一/轰一" -o /tmp/hongyi.cape
+.build/release/AniCape pack "指针/轰一/轰一" -o /tmp/hongyi.cape
 # ✅ /tmp/hongyi.cape：13 个光标
 # 跳过：手写.ani，候选.ani，位置选择.ani，个人选择.ani
 ```
@@ -49,17 +49,17 @@ Converts every `.ani` in a directory into a single `.cape`, identifying each fil
 
 ```bash
 # Single file: role inferred from the filename, written beside the source
-.build/release/anicap file "指针/樱巫女/Normal.ani"
+.build/release/AniCape file "指针/樱巫女/Normal.ani"
 
 # Single file with an explicit output path
-.build/release/anicap file "指针/樱巫女/Normal.ani" -o /tmp/normal.cape
+.build/release/AniCape file "指针/樱巫女/Normal.ani" -o /tmp/normal.cape
 
 # Several files merged into one pack, written into an existing directory
-.build/release/anicap file "指针/樱巫女/Normal.ani" "指针/樱巫女/Busy.ani" -o /tmp/out
+.build/release/AniCape file "指针/樱巫女/Normal.ani" "指针/樱巫女/Busy.ani" -o /tmp/out
 
 # Force a role, by alias or by raw identifier
-.build/release/anicap file 某文件.ani --role 正常选择 -o /tmp/x.cape
-.build/release/anicap file 某文件.ani --role com.apple.coregraphics.Arrow -o /tmp/x.cape
+.build/release/AniCape file 某文件.ani --role 正常选择 -o /tmp/x.cape
+.build/release/AniCape file 某文件.ani --role com.apple.coregraphics.Arrow -o /tmp/x.cape
 ```
 
 Passing more than one file requires `-o` to name an existing directory; the pack is written there as `<directory-name>.cape`. Writing to stdout (`-o -`) is not supported. Exits `1` if nothing was produced and `2` on a usage error.
@@ -70,7 +70,7 @@ Passing more than one file requires `-o` to name an existing directory; the pack
 
 ```bash
 make gui       # run directly from source during development
-make app       # assemble a double-clickable build/anicap.app
+make app       # assemble a double-clickable build/AniCape.app
 ```
 
 - Drag in `.ani` files or a whole folder — the list shows the role, frame count and dimensions detected for each one.
@@ -136,11 +136,10 @@ Sources/
   CapeKit/       .cape document model and LZW-TIFF writer
   RoleKit/       Windows role name → macOS cursor slot mapping
   Core/          conversion pipeline shared by the CLI and the GUI
-  anicap/        command-line entry point
-  anicap-gui/    SwiftUI app
-  anicap-tests/  dependency-free test harness
+  AniCape/       command-line entry point
+  AniCapeGUI/    SwiftUI app
+  AniCapeTests/  dependency-free test harness
 Tools/           Python/shell verification scripts
-docs/            design specs and implementation plans
 ```
 
 ## Notes

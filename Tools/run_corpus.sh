@@ -7,7 +7,7 @@
 set -u
 
 OUT_DIR="${1:?用法: bash Tools/run_corpus.sh <输出目录>}"
-BIN=".build/release/anicap"
+BIN=".build/release/AniCape"
 
 echo "== make build =="
 make build || { echo "❌ make build 失败"; exit 1; }

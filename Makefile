@@ -2,9 +2,9 @@
 build:
 	swift build -c release
 test:
-	swift run anicap-tests
+	swift run AniCapeTests
 gui:
-	swift run anicap-gui
+	swift run AniCapeGUI
 app:
 	bash Tools/make_app.sh
 clean:

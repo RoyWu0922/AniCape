@@ -13,14 +13,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 @main
-struct AnicapApp: App {
+struct AniCapeApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var store = ConversionStore()
     // Ruling P3：以 URL 为选择键（ConversionItem 非 Hashable）。
     @State private var selection: URL?
 
     var body: some Scene {
-        WindowGroup("anicap") {
+        WindowGroup("AniCape") {
             VStack(spacing: 0) {
                 if store.items.isEmpty {
                     DropZoneView { store.add(urls: $0) }

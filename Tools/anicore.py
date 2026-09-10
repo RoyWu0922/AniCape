@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""anicore.py — 共享的 ANI/CUR 解析与解码助手（anicap 校验工具专用）。
+"""anicore.py — 共享的 ANI/CUR 解析与解码助手（AniCape 校验工具专用）。
 
 逐字镜像 Swift 流水线（Ruling T10-2），供 compare_decode.py 与 roundtrip.py 复用：
   - Sources/AniKit/ANIReader.swift       : RIFF/ACON 分帧 + anih/rate/seq + LIST "fram" 的 icon 块

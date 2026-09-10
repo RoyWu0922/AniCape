@@ -17,10 +17,10 @@ func isDirectory(_ path: String) -> Bool {
 
 func printUsage() {
     print("""
-    anicap: 把 Windows .ani 动画光标转换为 Mousecape .cape
+    AniCape: 把 Windows .ani 动画光标转换为 Mousecape .cape
     用法:
-      anicap pack <ani文件夹> [-o 输出.cape] [--author X] [--name Y]
-      anicap file <x.ani> [<y.ani>…] [--role <角色名|identifier>] [-o <输出.cape|输出目录>]
+      AniCape pack <ani文件夹> [-o 输出.cape] [--author X] [--name Y]
+      AniCape file <x.ani> [<y.ani>…] [--role <角色名|identifier>] [-o <输出.cape|输出目录>]
     """)
 }
 
