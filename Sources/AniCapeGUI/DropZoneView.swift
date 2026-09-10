@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
+import L10nKit
 
 /// 把拖入的 `NSItemProvider` 解析成文件 URL。空态投放区与非空态整窗投放共用。
 ///
@@ -29,13 +30,15 @@ enum DropReceiver {
 
 struct DropZoneView: View {
     let onURLs: ([URL]) -> Void
+    @EnvironmentObject private var settings: LanguageSettings
     @State private var isTargeted = false
 
     var body: some View {
         VStack(spacing: 10) {
             Image(systemName: "cursorarrow.rays").font(.system(size: 34))
-            Text("拖入 .ani 或文件夹").font(.title3)
-            Text("也可以点这里选择").font(.callout).foregroundStyle(.secondary)
+            Text(L10n.text(.dropTitle, settings.language)).font(.title3)
+            Text(L10n.text(.dropClick, settings.language))
+                .font(.callout).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(isTargeted ? Color.accentColor.opacity(0.12) : Color.clear)

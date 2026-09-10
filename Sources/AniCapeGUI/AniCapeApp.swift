@@ -16,6 +16,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 struct AniCapeApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var store = ConversionStore()
+    @StateObject private var settings = LanguageSettings()
     // Ruling P3：以 URL 为选择键（ConversionItem 非 Hashable）。
     @State private var selection: URL?
 
@@ -45,6 +46,9 @@ struct AniCapeApp: App {
                 Task { store.add(urls: await DropReceiver.urls(from: providers)) }
                 return true
             }
+            // 语言状态从这里向下传给所有视图；切换底栏的分段控件即改这里，
+            // 整窗文案跟着重绘。
+            .environmentObject(settings)
         }
     }
 }

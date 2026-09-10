@@ -2,6 +2,7 @@ import Foundation
 import Core
 import CapeKit
 import RoleKit
+import L10nKit
 
 @MainActor
 final class ConversionStore: ObservableObject {
@@ -48,13 +49,18 @@ final class ConversionStore: ObservableObject {
     }
 
     /// 同槽冲突的说明文字（预览态计算，无需先点转换；spec §5）。
-    var conflictMessages: [String] {
-        conflictingIdentifiers.sorted().map { identifier in
+    ///
+    /// 语言由调用处传入而不是存进 store：store 只管转换状态，
+    /// 显示语言是视图层的事，这样两边的状态互不干扰。
+    func conflictMessages(_ lang: Language) -> [String] {
+        let separator = L10n.text(.listSeparator, lang)
+        let template = L10n.text(.conflictLine, lang)
+        return conflictingIdentifiers.sorted().map { identifier in
             let files = items.filter { item in
                 guard item.cursor != nil, !excluded.contains(item.sourceURL) else { return false }
                 return (assignments[item.sourceURL] ?? item.autoIdentifier) == identifier
             }.map { $0.fileName }.sorted()
-            return "⚠️ \(files.joined(separator: "、")) 指向同一槽位 \(identifier)：转换时按文件名升序后者覆盖前者"
+            return String(format: template, files.joined(separator: separator), identifier)
         }
     }
 

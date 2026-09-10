@@ -1,10 +1,14 @@
 import SwiftUI
 import Core
 import RoleKit
+import L10nKit
 
 struct ItemRowView: View {
     let item: ConversionItem
     @ObservedObject var store: ConversionStore
+    @EnvironmentObject private var settings: LanguageSettings
+
+    private var lang: Language { settings.language }
 
     private var isConflicting: Bool {
         guard let id = store.identifier(for: item) else { return false }
@@ -18,7 +22,7 @@ struct ItemRowView: View {
                 Text(item.fileName)
                 Text(detail).font(.caption).foregroundStyle(.secondary)
                 if isConflicting {
-                    Text("与另一文件指向同一槽位：转换时后者覆盖前者")
+                    Text(L10n.text(.rowConflict, lang))
                         .font(.caption).foregroundStyle(.orange)
                 }
             }
@@ -27,13 +31,13 @@ struct ItemRowView: View {
             if case .error = item.status {
                 EmptyView()
             } else {
-                Picker("", selection: Binding(
+                Picker(L10n.text(.rolePickerLabel, lang), selection: Binding(
                     get: { store.identifier(for: item) ?? "" },
                     set: { store.setAssignment($0.isEmpty ? nil : $0, for: item) })) {
-                    Text("不纳入").tag("")
+                    Text(L10n.text(.exclude, lang)).tag("")
                     Divider()
                     ForEach(RoleMap.assignableRoles, id: \.identifier) { role in
-                        Text("\(role.name) — \(role.identifier)").tag(role.identifier)
+                        Text("\(role.displayName(lang)) — \(role.identifier)").tag(role.identifier)
                     }
                 }
                 .labelsHidden()
@@ -56,8 +60,9 @@ struct ItemRowView: View {
     }
 
     private var detail: String {
-        guard let cursor = item.cursor else { return "不可用" }
-        return "\(cursor.frames.count) 帧 · \(cursor.frameWidthPx)×\(cursor.frameHeightPx)"
+        guard let cursor = item.cursor else { return L10n.text(.unavailable, lang) }
+        return String(format: L10n.text(.framesSize, lang),
+                      cursor.frames.count, cursor.frameWidthPx, cursor.frameHeightPx)
     }
 
     @ViewBuilder private var badge: some View {
@@ -65,7 +70,7 @@ struct ItemRowView: View {
         case .ready:
             Text("✅")
         case .needsAssignment(let reason):
-            Text(reason == .noMacSlot ? "⚠️ 无 mac 槽" : "⚠️ 未识别")
+            Text(L10n.text(reason == .noMacSlot ? .noMacSlot : .unrecognized, lang))
                 .font(.caption).foregroundStyle(.orange)
         case .error(let message):
             Text("❌").help(message)
