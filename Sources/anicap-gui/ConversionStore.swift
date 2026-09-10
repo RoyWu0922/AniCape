@@ -148,6 +148,7 @@ final class ConversionStore: ObservableObject {
         assignments = [:]
         excluded = []
         name = ""
+        author = "anicap"
         pathWasEdited = false
         outputURL = nil
         phase = .empty

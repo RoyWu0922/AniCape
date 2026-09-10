@@ -60,6 +60,8 @@ make app       # 组装可双击的 build/anicap.app
 - 左侧选中一行，右侧按原始帧时长循环播放预览。
 - 「无 mac 槽」或「未识别」的文件默认不纳入，可用行内下拉指派到 13 个 macOS 光标槽之一；两个文件指向同一槽位时高亮提示，转换时后者覆盖前者。
 - 底部可改名称/作者与输出路径，点「转换」写出 `.cape`；完成后可直接在 Finder 中显示或用 Mousecape 打开。
+- `.cape` 的 identifier 取 `local.anicap.<名称的 slug>`；若把名称留空则用 `cape`。
+  注意命令行 `anicap pack` 取的是**文件夹名**——名称字段未改动时两者相同。
 
 > 需要 macOS 13 或更高版本（`Package.swift` 的 platforms 已声明 `.v13`）。
 
