@@ -2,6 +2,31 @@ import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
 
+/// 把拖入的 `NSItemProvider` 解析成文件 URL。空态投放区与非空态整窗投放共用。
+///
+/// 本机 SDK 未导出 `loadDataRepresentation(forTypeIdentifier:)` 的 async 形式，
+/// 故用 continuation 包一层 completion-handler 版本（行为等价）。
+@MainActor
+enum DropReceiver {
+    static func urls(from providers: [NSItemProvider]) async -> [URL] {
+        var urls: [URL] = []
+        for provider in providers {
+            if let url = await fileURL(from: provider) { urls.append(url) }
+        }
+        return urls
+    }
+
+    private static func fileURL(from provider: NSItemProvider) async -> URL? {
+        let data: Data? = await withCheckedContinuation { continuation in
+            provider.loadDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier) { data, _ in
+                continuation.resume(returning: data)
+            }
+        }
+        guard let data, let text = String(data: data, encoding: .utf8) else { return nil }
+        return URL(string: text)
+    }
+}
+
 struct DropZoneView: View {
     let onURLs: ([URL]) -> Void
     @State private var isTargeted = false
@@ -23,27 +48,9 @@ struct DropZoneView: View {
         .contentShape(Rectangle())
         .onTapGesture { pick() }
         .onDrop(of: [.fileURL], isTargeted: $isTargeted) { providers in
-            Task {
-                var urls: [URL] = []
-                for provider in providers {
-                    if let url = await Self.fileURL(from: provider) { urls.append(url) }
-                }
-                onURLs(urls)
-            }
+            Task { onURLs(await DropReceiver.urls(from: providers)) }
             return true
         }
-    }
-
-    /// 本机 SDK 未导出 `loadDataRepresentation(forTypeIdentifier:)` 的 async 形式，
-    /// 故用 continuation 包一层 completion-handler 版本（行为等价）。
-    @MainActor private static func fileURL(from provider: NSItemProvider) async -> URL? {
-        let data: Data? = await withCheckedContinuation { continuation in
-            provider.loadDataRepresentation(forTypeIdentifier: UTType.fileURL.identifier) { data, _ in
-                continuation.resume(returning: data)
-            }
-        }
-        guard let data, let text = String(data: data, encoding: .utf8) else { return nil }
-        return URL(string: text)
     }
 
     private func pick() {

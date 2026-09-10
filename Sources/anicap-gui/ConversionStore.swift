@@ -12,12 +12,11 @@ final class ConversionStore: ObservableObject {
     }
 
     private enum Outcome {
-        case done(path: String, cursors: Int, warnings: [String])
+        case done(path: String, cursors: Int)
         case failed(String)
     }
 
     @Published private(set) var items: [ConversionItem] = []
-    @Published private(set) var warnings: [String] = []
     @Published private(set) var phase: Phase = .empty
     @Published var assignments: [URL: String] = [:]
     @Published var excluded: Set<URL> = []
@@ -46,6 +45,17 @@ final class ConversionStore: ObservableObject {
             counts[id, default: 0] += 1
         }
         return Set(counts.filter { $0.value > 1 }.keys)
+    }
+
+    /// 同槽冲突的说明文字（预览态计算，无需先点转换；spec §5）。
+    var conflictMessages: [String] {
+        conflictingIdentifiers.sorted().map { identifier in
+            let files = items.filter { item in
+                guard item.cursor != nil, !excluded.contains(item.sourceURL) else { return false }
+                return (assignments[item.sourceURL] ?? item.autoIdentifier) == identifier
+            }.map { $0.fileName }.sorted()
+            return "⚠️ \(files.joined(separator: "、")) 指向同一槽位 \(identifier)：转换时按文件名升序后者覆盖前者"
+        }
     }
 
     /// 该行最终归属的槽位（nil = 不纳入）。
@@ -90,10 +100,13 @@ final class ConversionStore: ObservableObject {
         updateDefaultOutputPath()
 
         phase = .analyzing
-        let existing = self.items
         Task {
             let analyzed = await Self.analyze(fresh)
-            self.items = existing + analyzed
+            // 合并发生在 await **之后**，并重新读取主线程当前的 items：
+            // 同一 .analyzing 窗口内的两次投放各自追加，不会用陈旧快照互相覆盖；
+            // 去重也在这个合并点按当前值重算，故重复投递同一 URL 是无害的。
+            let current = Set(self.items.map { $0.sourceURL })
+            self.items += analyzed.filter { !current.contains($0.sourceURL) }
             self.phase = self.items.isEmpty ? .empty : .ready
         }
     }
@@ -122,8 +135,7 @@ final class ConversionStore: ObservableObject {
                                              excluded: excluded, name: name,
                                              author: author, outputURL: outputURL)
             switch outcome {
-            case .done(let path, let count, let warns):
-                self.warnings = warns
+            case .done(let path, let count):
                 self.phase = .done(path: path, cursors: count)
             case .failed(let message):
                 self.phase = .failed(message)      // 绝不在此路径显示成功
@@ -135,7 +147,6 @@ final class ConversionStore: ObservableObject {
         items = []
         assignments = [:]
         excluded = []
-        warnings = []
         name = ""
         pathWasEdited = false
         outputURL = nil
@@ -153,10 +164,12 @@ final class ConversionStore: ObservableObject {
                                             outputURL: URL) async -> Outcome {
         await Task.detached(priority: .userInitiated) {
             do {
-                let (doc, warns) = try Converter.assemble(items: items, assignments: assignments,
-                                                          excluded: excluded, name: name, author: author)
+                // 同槽冲突已在预览态由 `conflictMessages` 呈现（spec §5），
+                // 故不再消费 assemble 返回的同源 warnings，以免留下无人读取的状态。
+                let (doc, _) = try Converter.assemble(items: items, assignments: assignments,
+                                                      excluded: excluded, name: name, author: author)
                 try CapeWriter.write(document: doc, to: outputURL)
-                return Outcome.done(path: outputURL.path, cursors: doc.cursors.count, warnings: warns)
+                return Outcome.done(path: outputURL.path, cursors: doc.cursors.count)
             } catch {
                 return Outcome.failed("\(error)")
             }

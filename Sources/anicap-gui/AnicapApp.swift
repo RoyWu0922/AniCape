@@ -45,6 +45,13 @@ struct AnicapApp: App {
             }
             .frame(minWidth: 720, minHeight: 460)
             .onAppear { store.updateDefaultOutputPath() }
+            // 列表非空后整窗仍接收投放（spec §5「拖入是累加」），
+            // 与空态的 DropZoneView 走同一个 store.add(urls:)。
+            // 若同一次投放被内外两处都投递，store 在合并点按 sourceURL 去重，重复无害。
+            .onDrop(of: [.fileURL], isTargeted: nil) { providers in
+                Task { store.add(urls: await DropReceiver.urls(from: providers)) }
+                return true
+            }
         }
     }
 }

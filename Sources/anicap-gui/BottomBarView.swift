@@ -25,8 +25,18 @@ struct BottomBarView: View {
                 Button("选择…") { chooseOutput() }
             }
             statusLine
+            conflictLines
         }
         .padding(12)
+    }
+
+    /// 预览态的冲突说明文字（spec §5：无需先点转换即可看到冲突）。
+    @ViewBuilder private var conflictLines: some View {
+        ForEach(store.conflictMessages, id: \.self) { message in
+            Text(message)
+                .font(.caption).foregroundStyle(.orange)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 
     @ViewBuilder private var statusLine: some View {
