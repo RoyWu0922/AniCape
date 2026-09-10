@@ -77,6 +77,7 @@ make app       # assemble a double-clickable build/AniCape.app
 - Select a row to play that cursor back on the right, looping at its original frame durations.
 - Files with no macOS slot or an unrecognized name are excluded by default; assign them to one of the 13 slots with the inline dropdown. Two files targeting the same slot are highlighted, and the later one wins on conversion.
 - Set the name, author and output path at the bottom, then press Convert. When it finishes you can reveal the file in Finder or open it in Mousecape.
+- The interface switches between **中文 and English** with the segmented control at the right of the bottom bar. The change takes effect immediately and is remembered across launches; the default is Chinese, and it deliberately does not follow the system language.
 
 ## Role mapping
 
@@ -135,6 +136,7 @@ Sources/
   AniKit/        .ani parsing (RIFF), CUR/DIB decoding, LZW
   CapeKit/       .cape document model and LZW-TIFF writer
   RoleKit/       Windows role name → macOS cursor slot mapping
+  L10nKit/       GUI string tables (中文 / English)
   Core/          conversion pipeline shared by the CLI and the GUI
   AniCape/       command-line entry point
   AniCapeGUI/    SwiftUI app
@@ -148,7 +150,7 @@ AniCape was **vibe coded** — designed and written in collaboration with [Claud
 
 That is a real caveat, so here is what stands in for it:
 
-- `make test` runs a **127-check** suite over the RIFF parser, CUR/DIB decoding, LZW, the cape envelope and the conversion plan. `0 failed` is the gate.
+- `make test` runs a **308-check** suite over the RIFF parser, CUR/DIB decoding, LZW, the cape envelope, the conversion plan and the interface string tables. `0 failed` is the gate.
 - `Tools/` holds checkers written *independently of* the Swift implementation. `roundtrip.py` re-reads a generated `.cape` and compares it pixel by pixel against the source `.ani` — that, not the unit tests, is what actually proves the pipeline is lossless.
 - The reference corpus was converted end to end and round-tripped, and the CLI's output was diffed byte-for-byte against a pre-rename build when the tool was renamed to AniCape.
 

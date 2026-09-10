@@ -62,6 +62,7 @@ make app       # 组装可双击的 build/AniCape.app
 - 左侧选中一行，右侧按原始帧时长循环播放预览。
 - 「无 mac 槽」或「未识别」的文件默认不纳入，可用行内下拉指派到 13 个 macOS 光标槽之一；两个文件指向同一槽位时高亮提示，转换时后者覆盖前者。
 - 底部可改名称/作者与输出路径，点「转换」写出 `.cape`；完成后可直接在 Finder 中显示或用 Mousecape 打开。
+- 界面支持**中文 / English** 切换：底栏右侧的分段控件即改即生效，选择记在 `UserDefaults`（键 `appLanguage`）里，下次启动沿用。默认中文，且刻意不跟随系统语言。
 - `.cape` 的 identifier 取 `local.anicap.<名称的 slug>`；若把名称留空则用 `cape`。
   注意命令行 `AniCape pack` 取的是**文件夹名**——名称字段未改动时两者相同。
 
@@ -123,7 +124,7 @@ bash Tools/run_corpus.sh /tmp/corpus_out
 
 这是个需要说清楚的前提，所以下面是它凭什么还站得住：
 
-- `make test` 覆盖 RIFF 解析、CUR/DIB 解码、LZW、cape 封装与转换计划，共 **127 项检查**，`0 failed` 才算过。
+- `make test` 覆盖 RIFF 解析、CUR/DIB 解码、LZW、cape 封装、转换计划与界面文案表，共 **308 项检查**，`0 failed` 才算过。
 - `Tools/` 下的校验工具是**独立于** Swift 实现另写的。`roundtrip.py` 把生成的 `.cape` 读回来，与源 `.ani` 逐像素比对——真正证明整条流水线无损的是它，不是单元测试。
 - 参考语料全量转换并 roundtrip 过；工具改名成 AniCape 时，命令行输出与改名前的二进制做过逐字节比对。
 
