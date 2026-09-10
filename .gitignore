@@ -4,3 +4,4 @@
 指针/
 __pycache__/
 *.pyc
+build/

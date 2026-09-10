@@ -49,6 +49,20 @@ make test           # 无 XCTest 门禁：swift run anicap-tests（命令行工�
 .build/release/anicap file 某文件.ani --role com.apple.coregraphics.Arrow -o /tmp/x.cape
 ```
 
+## 图形界面（GUI）
+
+```bash
+make gui       # 开发期直接运行
+make app       # 组装可双击的 build/anicap.app
+```
+
+- 拖入 `.ani` 或整个文件夹 → 列表显示每个文件识别到的角色与帧数/尺寸。
+- 左侧选中一行，右侧按原始帧时长循环播放预览。
+- 「无 mac 槽」或「未识别」的文件默认不纳入，可用行内下拉指派到 13 个 macOS 光标槽之一；两个文件指向同一槽位时高亮提示，转换时后者覆盖前者。
+- 底部可改名称/作者与输出路径，点「转换」写出 `.cape`；完成后可直接在 Finder 中显示或用 Mousecape 打开。
+
+> 需要 macOS 13 或更高版本（`Package.swift` 的 platforms 已声明 `.v13`）。
+
 ## 角色映射表
 
 | 中文 | English | macOS identifier |
