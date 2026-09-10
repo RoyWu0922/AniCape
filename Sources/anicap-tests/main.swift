@@ -31,6 +31,10 @@ let suites: [(name: String, run: () throws -> Void)] = [
     ("RoleTableMatchesTable", testAssignableRolesMatchTableViaChineseNames),
     ("RoleTableDisplayName", testDisplayNameRoundTrip),
     ("RoleTableIsSkipped", testIsSkippedMatchesSkippedRoleNames),
+    ("ConversionPlanStates", testPlanClassifiesFourStates),
+    ("ConversionPlanSort", testPlanSortsFiltersAndDoesNotRecurse),
+    ("ConversionPlanDecode", testPlanDecodesEveryDecodableItemOnce),
+    ("ConversionPlanFiles", testPlanFilesSortsGivenURLs),
 ]
 
 var ranAny = false
