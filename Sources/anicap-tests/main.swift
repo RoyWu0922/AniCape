@@ -35,6 +35,10 @@ let suites: [(name: String, run: () throws -> Void)] = [
     ("ConversionPlanSort", testPlanSortsFiltersAndDoesNotRecurse),
     ("ConversionPlanDecode", testPlanDecodesEveryDecodableItemOnce),
     ("ConversionPlanFiles", testPlanFilesSortsGivenURLs),
+    ("ConversionAssembleAssign", testAssembleAppliesAssignmentsAndExcludes),
+    ("ConversionAssembleConflict", testAssembleConflictLastWinsAndWarns),
+    ("ConversionAssembleEmpty", testAssembleEmptyThrowsNoCursors),
+    ("ConversionAssembleOrder", testAssembleDriverOrderIsDeterministic),
 ]
 
 var ranAny = false

@@ -64,3 +64,68 @@ func testPlanFilesSortsGivenURLs() throws {
     let items = Converter.plan(files: files)
     Harness.eq(items.map { $0.fileName }, ["Normal.ani", "whatever.ani"], "plan(files:) 也按文件名升序")
 }
+
+func testAssembleAppliesAssignmentsAndExcludes() throws {
+    let dir = try planFixtureDir()
+    defer { try? FileManager.default.removeItem(at: dir) }
+    let items = try Converter.plan(folder: dir)
+    let handwriting = try Harness.unwrap(items.first { $0.fileName == "手写.ani" }, "手写 item")
+    let normal = try Harness.unwrap(items.first { $0.fileName == "Normal.ani" }, "Normal item")
+    let (doc, warnings) = try Converter.assemble(
+        items: items,
+        assignments: [handwriting.sourceURL: "com.apple.cursor.2"],
+        excluded: [normal.sourceURL],
+        name: "测试名", author: "tester")
+    Harness.eq(doc.cursors.count, 1, "只保留被指派的 手写")
+    Harness.eq(doc.cursors["com.apple.cursor.2"]?.identifier, "com.apple.cursor.2", "重标为指派 identifier")
+    Harness.check(doc.cursors["com.apple.coregraphics.Arrow"] == nil, "Normal 被 excluded")
+    Harness.eq(doc.name, "测试名", "name 透传")
+    Harness.eq(doc.author, "tester", "author 透传")
+    Harness.eq(doc.identifier, "local.anicap.\(Converter.slug("测试名"))", "document identifier 同 CLI 式")
+    Harness.eq(warnings.count, 0, "无冲突 → 无 warning")
+}
+
+func testAssembleConflictLastWinsAndWarns() throws {
+    let dir = try planFixtureDir()
+    defer { try? FileManager.default.removeItem(at: dir) }
+    let items = try Converter.plan(folder: dir)
+    let normal = try Harness.unwrap(items.first { $0.fileName == "Normal.ani" }, "Normal item")
+    let whatever = try Harness.unwrap(items.first { $0.fileName == "whatever.ani" }, "whatever item")
+    // 文件名升序 Normal < whatever → 后者胜出
+    let (doc, warnings) = try Converter.assemble(
+        items: items,
+        assignments: [normal.sourceURL: "com.apple.coregraphics.Arrow",
+                      whatever.sourceURL: "com.apple.coregraphics.Arrow"],
+        excluded: [], name: "c", author: "t")
+    Harness.eq(doc.cursors.count, 1, "同槽合并为 1 个光标")
+    Harness.eq(warnings.count, 1, "一条覆盖 warning")
+    Harness.check(warnings.first?.contains("whatever.ani") == true, "warning 提到胜者文件名")
+    Harness.check(warnings.first?.contains("Normal.ani") == true, "warning 提到被覆盖者文件名")
+}
+
+func testAssembleEmptyThrowsNoCursors() throws {
+    let dir = try planFixtureDir()
+    defer { try? FileManager.default.removeItem(at: dir) }
+    let items = try Converter.plan(folder: dir)
+    let normal = try Harness.unwrap(items.first { $0.fileName == "Normal.ani" }, "Normal item")
+    Harness.assertThrows({
+        _ = try Converter.assemble(items: items, assignments: [:],
+                                   excluded: [normal.sourceURL], name: "x", author: "y")
+    }, "全空 → noCursors") { e in (e as? ConversionError) == .noCursors }
+}
+
+func testAssembleDriverOrderIsDeterministic() throws {
+    // 传入顺序与文件名升序相反，结果必须仍按文件名升序仲裁（后者覆盖前者）
+    let dir = try planFixtureDir()
+    defer { try? FileManager.default.removeItem(at: dir) }
+    let items = Array(try Converter.plan(folder: dir).reversed())
+    let normal = try Harness.unwrap(items.first { $0.fileName == "Normal.ani" }, "Normal item")
+    let whatever = try Harness.unwrap(items.first { $0.fileName == "whatever.ani" }, "whatever item")
+    let (_, warnings) = try Converter.assemble(
+        items: items,
+        assignments: [normal.sourceURL: "com.apple.cursor.3",
+                      whatever.sourceURL: "com.apple.cursor.3"],
+        excluded: [], name: "d", author: "t")
+    Harness.check(warnings.first?.contains("whatever.ani 覆盖 Normal.ani") == true,
+                  "仲裁与传入顺序无关，恒为文件名升序 last-wins")
+}

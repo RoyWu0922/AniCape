@@ -78,4 +78,36 @@ extension Converter {
             at: folder, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles])
         return plan(files: files)
     }
+
+    /// 组装文档：套用手动指派与排除，做同槽冲突仲裁（恒按文件名升序 last-wins）；空结果抛 .noCursors。
+    public static func assemble(items: [ConversionItem],
+                                assignments: [URL: String],
+                                excluded: Set<URL>,
+                                name: String,
+                                author: String) throws -> (document: CapeDocument, warnings: [String]) {
+        var cursors: [String: CapeCursor] = [:]
+        var owner: [String: String] = [:]        // identifier → 当前占用的文件名
+        var warnings: [String] = []
+
+        for item in items.sorted(by: { $0.fileName < $1.fileName }) {
+            guard let cursor = item.cursor, !excluded.contains(item.sourceURL) else { continue }
+            guard let identifier = assignments[item.sourceURL] ?? item.autoIdentifier else { continue }
+            if let previous = owner[identifier] {
+                warnings.append("\(item.fileName) 覆盖 \(previous) → \(identifier)")
+            }
+            owner[identifier] = item.fileName
+            cursors[identifier] = CapeCursor(identifier: identifier,
+                                             frameDuration: cursor.frameDuration,
+                                             frameWidthPx: cursor.frameWidthPx,
+                                             frameHeightPx: cursor.frameHeightPx,
+                                             hotspotX: cursor.hotspotX,
+                                             hotspotY: cursor.hotspotY,
+                                             frames: cursor.frames)
+        }
+
+        guard !cursors.isEmpty else { throw ConversionError.noCursors }
+        let doc = CapeDocument(name: name, author: author,
+                               identifier: "local.anicap.\(slug(name))", cursors: cursors)
+        return (doc, warnings)
+    }
 }
