@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import Core
 
 /// 无 .app bundle 时（`make gui` / 直接跑二进制）必须显式设置激活策略，
 /// 否则没有菜单栏、窗口也拿不到正常焦点。
@@ -14,16 +15,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 @main
 struct AnicapApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @StateObject private var store = ConversionStore()
+    // Ruling P3：以 URL 为选择键（ConversionItem 非 Hashable）。
+    @State private var selection: URL?
 
     var body: some Scene {
         WindowGroup("anicap") {
-            VStack(spacing: 12) {
-                Text("anicap GUI 探针").font(.title2)
-                Text("看到这个窗口且菜单栏出现 anicap，探针即通过。")
-                    .foregroundStyle(.secondary)
+            VStack(spacing: 0) {
+                if store.items.isEmpty {
+                    DropZoneView { store.add(urls: $0) }
+                } else {
+                    HSplitView {
+                        ItemListView(store: store, selection: $selection)
+                            .frame(minWidth: 380)
+                        VStack {
+                            if let selected = store.items.first(where: { $0.sourceURL == selection }) {
+                                Text(selected.fileName).font(.headline)
+                                Text(selected.cursor == nil ? "无法预览" : "预览待接入（Task 6）")
+                                    .foregroundStyle(.secondary)
+                            } else {
+                                Text("选中一行").foregroundStyle(.secondary)
+                            }
+                        }
+                        .frame(minWidth: 260, maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                }
+                Divider()
+                BottomBarView(store: store)
             }
-            .frame(width: 420, height: 200)
+            .frame(minWidth: 720, minHeight: 460)
+            .onAppear { store.updateDefaultOutputPath() }
         }
-        .windowResizability(.contentSize)
     }
 }
